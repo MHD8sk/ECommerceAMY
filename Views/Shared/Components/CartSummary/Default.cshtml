@@ -1,0 +1,13 @@
+@model (int itemCount, decimal total)
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <a class="btn btn-outline-primary me-3" asp-area="" asp-controller="Cart" asp-action="Index">
+        <i class="bi bi-cart3"></i>
+        <span class="ms-1">Cart</span>
+        @if (Model.itemCount > 0)
+        {
+            <span class="badge text-bg-primary ms-1">@Model.itemCount</span>
+            <span class="ms-1 fw-semibold">@Model.total.ToString("C")</span>
+        }
+    </a>
+}

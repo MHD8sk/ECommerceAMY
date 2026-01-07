@@ -1,0 +1,44 @@
+@model IEnumerable<ECommerceAMY.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "Manage Users";
+}
+<div class="page-header mb-4">
+    <h1 class="h2"><i class="bi bi-people"></i> Users</h1>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Full Name</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model)
+                    {
+                        <tr>
+                            <td>@u.Email</td>
+                            <td><strong>@u.FullName</strong></td>
+                            <td class="text-end">
+                                <form method="post" asp-action="AddToRole" class="d-inline">
+                                    <input type="hidden" name="userId" value="@u.Id" />
+                                    <input type="hidden" name="role" value="Admin" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-shield-check"></i> Make Admin</button>
+                                </form>
+                                <form method="post" asp-action="RemoveFromRole" class="d-inline">
+                                    <input type="hidden" name="userId" value="@u.Id" />
+                                    <input type="hidden" name="role" value="Admin" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-shield-x"></i> Remove Admin</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

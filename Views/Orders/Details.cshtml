@@ -1,0 +1,29 @@
+@model ECommerceAMY.Models.Order
+@{
+    ViewData["Title"] = $"Order #" + Model.Id;
+}
+<h2>Order #@Model.Id</h2>
+<p>Status: <span class="badge text-bg-info">@Model.Status</span></p>
+<p>Placed: @Model.CreatedAt.ToLocalTime().ToString("g")</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Product?.Name</td>
+                <td>@item.UnitPrice.ToString("C")</td>
+                <td>@item.Quantity</td>
+                <td>@( (item.UnitPrice * item.Quantity).ToString("C") )</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="text-end h5">Total: <span class="text-success">@Model.Total.ToString("C")</span></div>

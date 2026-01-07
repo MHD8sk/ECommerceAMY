@@ -1,0 +1,65 @@
+@model ECommerceAMY.Models.Product
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<div class="page-header mb-4">
+    <h1 class="h2"><i class="bi bi-pencil-square"></i> Edit Product</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <form method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-bold">Product Name</label>
+                        <input asp-for="Name" class="form-control form-control-lg" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-bold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Price" class="form-label fw-bold">Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input asp-for="Price" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Price" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Stock" class="form-label fw-bold">Stock Quantity</label>
+                            <input asp-for="Stock" class="form-control" type="number" />
+                            <span asp-validation-for="Stock" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="CategoryId" class="form-label fw-bold">Category</label>
+                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories"></select>
+                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ImageUrl" class="form-label fw-bold">Image URL</label>
+                            <input asp-for="ImageUrl" class="form-control" />
+                            <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check-circle"></i> Update Product</button>
+                        <a class="btn btn-secondary btn-lg" asp-action="Index"><i class="bi bi-x-circle"></i> Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

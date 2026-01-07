@@ -1,0 +1,9 @@
+@using System.Linq
+@model ECommerceAMY.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+@await Component.InvokeAsync("AdminDashboard", Model)
+

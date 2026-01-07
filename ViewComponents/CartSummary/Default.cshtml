@@ -1,0 +1,15 @@
+@model ECommerceAMY.ViewModels.CartSummaryViewModel
+
+<a class="nav-link position-relative" asp-controller="Cart" asp-action="Index">
+    @if (Model.ItemCount > 0)
+    {
+        <span class="badge bg-danger text-white rounded-pill pulse-badge position-absolute top-0 start-100 translate-middle ms-1">
+            @Model.ItemCount
+        </span>
+    }
+    <i class="bi bi-cart3 fs-5"></i>
+    @if (Model.Total > 0)
+    {
+        <span class="ms-2 fw-bold">@Model.Total.ToString("C")</span>
+    }
+</a>

@@ -1,0 +1,35 @@
+@model IEnumerable<ECommerceAMY.Models.Order>
+@{
+    ViewData["Title"] = "Order History";
+}
+<h2>Order History</h2>
+@if (!Model.Any())
+{
+    <p>No orders yet.</p>
+}
+else
+{
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var o in Model)
+        {
+            <tr>
+                <td>@o.Id</td>
+                <td>@o.CreatedAt.ToLocalTime().ToString("g")</td>
+                <td>@o.Status</td>
+                <td>@o.Total.ToString("C")</td>
+                <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@o.Id">View</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+}

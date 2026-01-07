@@ -1,0 +1,178 @@
+@model ECommerceAMY.Services.CartSummaryViewModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container my-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-cart3"></i> Shopping Cart
+                        <span class="badge bg-light text-primary ms-2">@Model.ItemCount items</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Items.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-cart-x display-1 text-muted"></i>
+                            <h4 class="mt-3">Your cart is empty</h4>
+                            <p class="text-muted">Add some products to get started!</p>
+                            <a class="btn btn-primary" asp-controller="Products" asp-action="Index">
+                                <i class="bi bi-shop"></i> Continue Shopping
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Subtotal</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://via.placeholder.com/60x60?text=Product" : item.ImageUrl)" 
+                                                         class="rounded me-3" width="60" height="60" alt="@item.ProductName" />
+                                                    <div>
+                                                        <h6 class="mb-1">@item.ProductName</h6>
+                                                        <small class="text-muted">
+                                                            @if (item.Stock < 10)
+                                                            {
+                                                                <span class="text-warning">
+                                                                    <i class="bi bi-exclamation-triangle"></i> Only @item.Stock left
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-success"><i class="bi bi-check-circle"></i> In Stock</span>
+                                                            }
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@item.Price.ToString("C")</td>
+                                            <td>
+                                                <div class="input-group" style="width: 120px;">
+                                                    <form asp-action="UpdateQuantity" method="post" class="d-flex">
+                                                        <input type="hidden" name="productId" value="@item.ProductId" />
+                                                        <input type="number" name="quantity" value="@item.Quantity" 
+                                                               class="form-control form-control-sm" min="1" max="@item.Stock" />
+                                                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                                            <i class="bi bi-arrow-clockwise"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                            <td><strong>@item.Subtotal.ToString("C")</strong></td>
+                                            <td>
+                                                <form asp-action="Remove" method="post">
+                                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Items.Any())
+        {
+            <div class="col-lg-4">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-calculator"></i> Order Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <strong>@Model.Subtotal.ToString("C")</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <strong>@Model.ShippingCost.ToString("C")</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tax:</span>
+                                <strong>@Model.Tax.ToString("C")</strong>
+                            </div>
+                            @if (Model.Discount > 0)
+                            {
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Discount:</span>
+                                    <strong>-@Model.Discount.ToString("C")</strong>
+                                </div>
+                            }
+                            <hr />
+                            <div class="d-flex justify-content-between">
+                                <h5>Total:</h5>
+                                <h5 class="text-primary">@Model.Total.ToString("C")</h5>
+                            </div>
+                        </div>
+
+                        @if (Model.EstimatedDelivery.HasValue)
+                        {
+                            <div class="alert alert-info mb-3">
+                                <i class="bi bi-truck"></i>
+                                <strong>Estimated Delivery:</strong> @Model.EstimatedDelivery.Value.ToString("MMM dd, yyyy")
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Discount code" id="discountCode" />
+                                <button class="btn btn-outline-secondary" onclick="applyDiscount()">
+                                    <i class="bi bi-tag"></i> Apply
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a class="btn btn-primary btn-lg" asp-controller="Orders" asp-action="Checkout">
+                                <i class="bi bi-credit-card"></i> Proceed to Checkout
+                            </a>
+                            <a class="btn btn-outline-secondary" asp-controller="Products" asp-action="Index">
+                                <i class="bi bi-arrow-left"></i> Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function applyDiscount() {
+        const code = document.getElementById('discountCode').value;
+        if (code) {
+            fetch('/Cart/ApplyDiscount', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ discountCode: code })
+            }).then(() => location.reload());
+        }
+    }
+</script>

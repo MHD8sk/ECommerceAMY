@@ -1,0 +1,53 @@
+@model IEnumerable<ECommerceAMY.Models.Order>
+@using ECommerceAMY.Models
+@{
+    ViewData["Title"] = "All Orders";
+}
+<div class="page-header mb-4">
+    <h1 class="h2"><i class="bi bi-receipt"></i> All Orders</h1>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model)
+                    {
+                        <tr>
+                            <td><strong>#@o.Id</strong></td>
+                            <td>@o.User?.Email</td>
+                            <td>@o.CreatedAt.ToLocalTime().ToString("g")</td>
+                            <td>
+                                <form method="post" asp-action="UpdateStatus" class="d-flex">
+                                    <input type="hidden" name="id" value="@o.Id" />
+                                    <select name="status" class="form-select form-select-sm">
+                                        @foreach (var s in Enum.GetValues(typeof(OrderStatus)).Cast<OrderStatus>())
+                                        {
+                                            <option value="@s" selected="@(s == o.Status)">@s</option>
+                                        }
+                                    </select>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2" type="submit"><i class="bi bi-check"></i> Update</button>
+                                </form>
+                            </td>
+                            <td><span class="text-success fw-bold">@o.Total.ToString("C")</span></td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" asp-area="" asp-controller="Orders" asp-action="Details" asp-route-id="@o.Id"><i class="bi bi-eye"></i> View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

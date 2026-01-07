@@ -1,0 +1,147 @@
+@model ECommerceAMY.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "https://via.placeholder.com/600x400?text=Product" : Model.ImageUrl)" 
+                 class="card-img-top" alt="@Model.Name" />
+            <div class="card-body">
+                <h2 class="card-title">@Model.Name</h2>
+                <p class="text-muted mb-3">
+                    <span class="badge bg-secondary">@Model.Category?.Name</span>
+                    @if (Model.Stock > 0)
+                    {
+                        <span class="badge bg-success ms-2">In Stock (@Model.Stock available)</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger ms-2">Out of Stock</span>
+                    }
+                </p>
+                <p class="card-text">@Model.Description</p>
+                <div class="d-flex align-items-center mb-3">
+                    <h3 class="text-success mb-0 me-3">@Model.Price.ToString("C")</h3>
+                    <div class="star-rating">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="bi bi-star@(i <= 4 ? "-fill" : "") star"></i>
+                        }
+                        <small class="text-muted ms-2">(4.5/5 - @Model.Reviews?.Count ?? 0 reviews)</small>
+                    </div>
+                </div>
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <form asp-controller="Cart" asp-action="Add" method="post">
+                                <input type="hidden" name="productId" value="@Model.Id" />
+                                <div class="input-group">
+                                    <input type="number" name="quantity" value="1" min="1" max="@Model.Stock" 
+                                           class="form-control" placeholder="Quantity" />
+                                    <button type="submit" class="btn btn-primary pulse-badge">
+                                        <i class="bi bi-cart-plus"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-danger w-100 wishlist-btn" data-product-id="@Model.Id">
+                                <i class="bi bi-heart"></i> Add to Wishlist
+                            </button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <a asp-area="Identity" asp-page="/Account/Login">Login</a> to purchase this product.
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <!-- Frequently Bought Together -->
+        <div id="frequentlyBoughtTogether"></div>
+        
+        <!-- Product Reviews -->
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0">
+                    <i class="bi bi-star text-warning"></i> Customer Reviews
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Reviews?.Any() ?? false)
+                {
+                    foreach (var review in Model.Reviews.Take(3))
+                    {
+                        <div class="mb-3 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong>@review.User?.FullName</strong>
+                                <div class="star-rating">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="bi bi-star@(i <= review.Rating ? "-fill" : "") star"></i>
+                                    }
+                                </div>
+                            </div>
+                            <p class="mb-1">@review.Comment</p>
+                            <small class="text-muted">@review.CreatedAt.ToString("MMM dd, yyyy")</small>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center">No reviews yet. Be the first!</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Related Products -->
+<div class="mt-5">
+    <h3 class="mb-4">
+        <i class="bi bi-grid text-info"></i> Related Products
+    </h3>
+    <div id="relatedProducts"></div>
+</div>
+
+<script>
+    // Load frequently bought together products
+    fetch(`/Recommendation/GetFrequentlyBoughtTogether?productId=@Model.Id`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('frequentlyBoughtTogether').innerHTML = html;
+        });
+    
+    // Load related products
+    fetch(`/Recommendation/GetRelatedProducts?productId=@Model.Id`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('relatedProducts').innerHTML = html;
+        });
+    
+    // Wishlist functionality
+    document.querySelector('.wishlist-btn')?.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        const isActive = this.classList.contains('active');
+        
+        fetch(`/Wishlist/${isActive ? 'Remove' : 'Add'}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: productId })
+        })
+        .then(response => {
+            if (response.ok) {
+                this.classList.toggle('active');
+                const icon = this.querySelector('i');
+                icon.className = isActive ? 'bi bi-heart' : 'bi bi-heart-fill';
+            }
+        });
+    });
+</script>
