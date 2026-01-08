@@ -9,14 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configuration: Connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? (builder.Environment.IsDevelopment() 
+    ?? (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
         ? "Server=(localdb)\\MSSQLLocalDB;Database=ECommerceAMYDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;"
         : "Data Source=ECommerceAMY.db");
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    if (builder.Environment.IsDevelopment())
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
         options.UseSqlServer(connectionString);
     else
         options.UseSqlite(connectionString);
