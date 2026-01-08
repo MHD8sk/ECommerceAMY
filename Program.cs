@@ -8,15 +8,17 @@ using ECommerceAMY.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuration: Connection string
+var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" && 
+                    Environment.GetEnvironmentVariable("RENDER_SERVICE_ID") == null;
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+    ?? (isDevelopment
         ? "Server=(localdb)\\MSSQLLocalDB;Database=ECommerceAMYDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;"
         : "Data Source=ECommerceAMY.db");
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+    if (isDevelopment)
         options.UseSqlServer(connectionString);
     else
         options.UseSqlite(connectionString);
