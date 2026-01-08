@@ -9,11 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configuration: Connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Server=(localdb)\\MSSQLLocalDB;Database=ECommerceAMYDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
+    ?? (builder.Environment.IsDevelopment() 
+        ? "Server=(localdb)\\MSSQLLocalDB;Database=ECommerceAMYDb;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;"
+        : "Data Source=ECommerceAMY.db");
 
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (builder.Environment.IsDevelopment())
+        options.UseSqlServer(connectionString);
+    else
+        options.UseSqlite(connectionString);
+});
 
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -74,6 +81,9 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Health check endpoint for Render
+app.MapGet("/healthz", () => Results.Ok("Healthy"));
 
 // Seed initial data
 await SeedData.InitializeAsync(app.Services);
